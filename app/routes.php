@@ -58,7 +58,7 @@ Route::group(array('before' => 'isLogined'), function()
     );
 });
 
-Route::group(array('before' => 'isLogined|isAdmin'), function()
+Route::group(array('before' => 'isAdmin'), function()
 {
     Route::get('/user/create', array('as' => 'user.create', 'uses' =>
         'App\Controllers\User\UserController@getCreate')
@@ -110,11 +110,7 @@ Route::group(array('before' => 'isLogined|isAdmin'), function()
     ->where('id', '[0-9]+');
 });
 
-Route::group(array('before' => 'isLogined|isChecker'), function()
-{
-});
-
-Route::group(array('before' => 'isLogined|csrf'), function()
+Route::group(array('before' => 'isLogined'), function()
 {
     Route::post('/application', array('as' => 'application', 'uses' =>
         'App\Controllers\ApplicationController@postApplication')
@@ -124,10 +120,7 @@ Route::group(array('before' => 'isLogined|csrf'), function()
     );
 });
 
-Route::group(array('before' => 'isLogined|isChecker|csrf'), function()
-{
-});
-Route::group(array('before' => 'isLogined|isAdmin|csrf'), function()
+Route::group(array('before' => ' isAdmin'), function()
 {
     Route::put('/application/{id}', array('uses' =>
         'App\Controllers\ApplicationController@postApplicationUpdate')
@@ -162,10 +155,17 @@ Route::filter('isLogined', function()
 
 Route::filter('isAdmin', function()
 {
-    if ( ! Session::get('group') === 'admin' )
+    if ( ! Sentry::check())
     {
-        return Response::make('Not Found', 404);
+      return Redirect::to('login');
     }
+    $user=Sentry::getUser();
+    $admin = Sentry::findGroupByName('admin');
+    if(!$user->inGroup($admin))
+    {
+      return Redirect::back();
+    }
+
 });
 
 Route::filter('isChecker', function()
