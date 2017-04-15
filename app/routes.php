@@ -163,7 +163,7 @@ Route::filter('isAdmin', function()
     $admin = Sentry::findGroupByName('admin');
     if(!$user->inGroup($admin))
     {
-      return Redirect::back();
+      return App::abort(404);
     }
 
 });
